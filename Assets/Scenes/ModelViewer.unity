@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -294,7 +294,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -496,7 +496,7 @@ MonoBehaviour:
   _profileStubName: GRATING_4X4
   _decorators:
     parallax_tracker: 0
-    multiCameraCompositFlag: 0
+    multiCameraCompositFlag: 1
     interlaceInEditor: 0
     _viewPeelEnabled: 0
     _renderTechnique: 0
@@ -611,7 +611,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &705507994
 Light:
   m_ObjectHideFlags: 0
@@ -806,7 +806,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -26.807196}
+  m_LocalPosition: {x: 0, y: 0, z: -30.48584}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -825,11 +825,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63f1a9a40464147d5a8781426bd9c8d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraZaxisMovement: 1
+  cameraZaxisMovement: 0
   mViewportRectFillTechnique: 0
-  _disparityScaling: 3.29
-  _cameraShiftScaling: 1
-  _convergenceDistance: 24.197195
+  _disparityScaling: 1
+  _cameraShiftScaling: 0.00001
+  _convergenceDistance: 30.66584
   _drawCameraBounds: 1
   _cameraShift: {x: 0, y: 0, z: 0}
   _renderObject: {fileID: 0}
@@ -841,20 +841,20 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 312ee01aaeef2a0438f11f94cd0b0fe2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _baselineRange:
-    _min: 1
+    _min: 0
     _lifetimeMin: 0
     _minLabel: MinBaseline
     _max: 10
     _lifetimeMax: 100
     _maxLabel: MaxBaseline
   _convergenceRange:
-    _min: 1
+    _min: 0.00001
     _lifetimeMin: 0.00001
     _minLabel: MinConvergence
     _max: 1000
@@ -886,6 +886,7 @@ MonoBehaviour:
   speed: 0.1
   vertSpeed: 0.1
   leiaDisplay: {fileID: 1750070436}
+  models: []
 --- !u!1 &1278266772
 GameObject:
   m_ObjectHideFlags: 0
@@ -919,8 +920,8 @@ RectTransform:
   m_Father: {fileID: 780280626}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -980,7 +981,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1395053630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1038,7 +1039,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 25
+  m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
@@ -1394,7 +1395,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1932973709
 Transform:
   m_ObjectHideFlags: 0
@@ -1439,7 +1440,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b71cf65569e3e9842994bab38728d19f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b71cf65569e3e9842994bab38728d19f, type: 3}
       propertyPath: m_LocalPosition.z

@@ -1,4 +1,5 @@
 import websocket
+import time
 
 #Connect to server:
 ws = websocket.create_connection("ws://localhost:3000/ModelViewer");
@@ -6,6 +7,7 @@ ws = websocket.create_connection("ws://localhost:3000/ModelViewer");
 
 while(True):
     command = input("enter a command: ")
+    start = time.time()
     if command == "quit":
         break;
     if command == "store_sequence":
@@ -23,6 +25,8 @@ while(True):
     else:
         ws.send(command)
         print(ws.recv())
+    end = time.time()
+    print(1000*(end - start))
 
 
 ws.close()
