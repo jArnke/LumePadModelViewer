@@ -7,7 +7,7 @@ using LeiaLoft;
 public class CameraController : MonoBehaviour
 {
     public static CameraController cam;
-    [SerializeField] private Transform target;
+    private Transform target;
 
     [SerializeField] private float distance;
     [SerializeField] private Vector3 offset;
@@ -19,6 +19,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private GameObject[] models;
 
     private Vector2 currOffset;
+
+    private int model_num = 0;
     
 
 
@@ -35,10 +37,12 @@ public class CameraController : MonoBehaviour
     }
     // Start is called before the first frame update
     void Start(){
+        this.SetTarget(this.LoadNewModel(models[model_num]));
         ResetDisplay(); 
         ViewSequence = new List<ViewState>();
         Debug.Log(cam.ViewSequence);
     }
+
     // Update is called once per frame
     void Update(){
         //Look for User Input
@@ -49,6 +53,17 @@ public class CameraController : MonoBehaviour
         if (loading)
             SetState(nextState);
     }
+
+    public void CycleModel(int dir){
+        model_num += dir;
+        if(model_num < 0){
+            model_num = this.models.Length - 1;
+        }
+        model_num = model_num % this.models.Length;
+        this.SetTarget(this.LoadNewModel(models[model_num]));
+        ResetDisplay(); 
+    }
+
     public void ResetDisplay(){
         Vector3 pivot = target.position+offset;
         this.transform.position = pivot + new Vector3(distance, 0, 0);
@@ -101,7 +116,7 @@ public class CameraController : MonoBehaviour
 
     public ViewState GetCurrentState(){
         ViewState state = new ViewState();
-        state.model_id = 0;
+        state.model_id = model_num;
         state.is3D = (leiaDisplay.DesiredLightfieldValue == 1);
         state.Orientation = currOffset;
         return state;
@@ -127,7 +142,8 @@ public class CameraController : MonoBehaviour
     public List<ViewState> GetSequence(){return ViewSequence;}
 
     private GameObject LoadNewModel(GameObject model){
-        Destroy(this.target.gameObject);
+        if(this.target != null)
+            Destroy(this.target.gameObject);
         this.target = Instantiate(model).transform;
         return this.target.gameObject;
     }
