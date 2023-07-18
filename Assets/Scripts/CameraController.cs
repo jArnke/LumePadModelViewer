@@ -87,13 +87,15 @@ public class CameraController : MonoBehaviour
         cam.nextState = state;
     }
     public void SetState(ViewState state){
+        var start = Time.realtimeSinceStartup; 
         loading = false;
-        Debug.Log("loading state");
-        //cam.SetTarget(cam.LoadNewModel(cam.models[state.model_id]));    
+        cam.SetTarget(cam.LoadNewModel(cam.models[state.model_id]));    
         cam.ResetDisplay();
         cam.leiaDisplay.DesiredLightfieldValue = (state.is3D) ? 1 : 0;
-        Debug.Log($"rotating to {state.Orientation.x}, {state.Orientation.y}");
         cam.Rotate(state.Orientation.x, state.Orientation.y);
+        var end = Time.realtimeSinceStartup; 
+        var delay = end - start;
+        Debug.Log(delay*1000);
 
     }
 
@@ -125,6 +127,8 @@ public class CameraController : MonoBehaviour
     public List<ViewState> GetSequence(){return ViewSequence;}
 
     private GameObject LoadNewModel(GameObject model){
+        Destroy(this.target.gameObject);
+        this.target = Instantiate(model).transform;
         return this.target.gameObject;
     }
 }
