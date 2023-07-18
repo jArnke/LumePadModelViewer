@@ -4,6 +4,8 @@ using UnityEngine;
 
 using LeiaLoft;
 
+using LSL;
+
 public class CameraController : MonoBehaviour
 {
     public static CameraController cam;
@@ -28,12 +30,20 @@ public class CameraController : MonoBehaviour
     protected bool loading = false;
     protected ViewState nextState;
 
+    //LSL Stuff
+    private StreamInfo info = new StreamInfo("StimulousMarkers", "Markers", 1,
+                LSL.LSL.IRREGULAR_RATE, channel_format_t.cf_string, "HashInfoOrSomething");
+    private StreamOutlet outlet;
+    private string[] sample = {"StimulousLoaded"};
+    
     void Awake(){
         if(CameraController.cam == null) CameraController.cam = this;
         else{
             Destroy(this);
             Debug.LogError("More than one CameraController Exists Destorying");
         }
+        //Create LSL outlet
+        outlet = new StreamOutlet(info);
     }
     // Start is called before the first frame update
     void Start(){
@@ -109,9 +119,9 @@ public class CameraController : MonoBehaviour
         cam.leiaDisplay.DesiredLightfieldValue = (state.is3D) ? 1 : 0;
         cam.Rotate(state.Orientation.x, state.Orientation.y);
         var end = Time.realtimeSinceStartup; 
-        var delay = end - start;
+        var delay  = end - start;
         Debug.Log(delay*1000);
-
+        outlet.push_sample(sample);
     }
 
     public ViewState GetCurrentState(){

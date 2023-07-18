@@ -6,7 +6,6 @@ using WebSocketSharp.Server;
 
 using Unity.Serialization.Json;
 
-using LSL;
 
 public class Server : MonoBehaviour
 {
@@ -56,14 +55,8 @@ public class ModelViewerService : WebSocketBehavior
     private List<ViewState> current_sequence = new List<ViewState>();
     private int viewStateIdx = 0;
 
-    private StreamInfo info = new StreamInfo("StimulousMarkers", "Markers", 1,
-                LSL.LSL.IRREGULAR_RATE, channel_format_t.cf_string, "HashInfoOrSomething");
-    private StreamOutlet outlet;
-    private string[] sample = {"StimulousLoaded"};
-    
     protected override void OnOpen(){
         Debug.Log("[Server][ModelViewer Service] Client connected.");
-        outlet = new StreamOutlet(info);
     }
     protected override void OnClose(CloseEventArgs e){
         Debug.Log("[Server][ModelViewer Service] Client disconnected.");
@@ -87,7 +80,6 @@ public class ModelViewerService : WebSocketBehavior
                 {
                     Send("Loading next state");
                     CameraController.LoadState(current_sequence[viewStateIdx]);
-                    outlet.push_sample(sample);
                 }
                 else
                 {
