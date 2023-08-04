@@ -24,6 +24,9 @@ public class Server : MonoBehaviour
     void OnDestory(){
         wssv.Stop();
     }
+    void OnDisable(){
+        wssv.Stop();
+    }
 
 }
 

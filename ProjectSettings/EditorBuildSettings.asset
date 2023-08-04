@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/LeiaLoft/Examples/LeiaLogo/LeiaLogo.unity
-    guid: 1c3d3b9a9f7e0124e81ff140fd3cba94
+    path: Assets/Scenes/SequenceCreation.unity
+    guid: 8250b70e38cf1144b9329246d48911e7
+  - enabled: 1
+    path: Assets/Scenes/SubjectView.unity
+    guid: f5d78169c3d95fa45b80afd5c1257018
   m_configObjects: {}
