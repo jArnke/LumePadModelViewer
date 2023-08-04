@@ -55,7 +55,7 @@ Now to begin cycling through states issue the command "next" after recieving thi
 - Ability to save and store multiple sequences
   - Currently when storing a sequence it will be saved with the name my_seq.txt can easilly modify this to allow for custom names and having multiple sequences stored at once to send back later
 - Improving sent by LSL Markers
-  - Currently all Markers simply send the String "Stimuli Loaded",  could modify this to allow for the experimenter on the python client to specify information such as sequence name, test subject ID, and state number to allow for easier parsing of the data.
+  - Currently all Markers simply send the String "StimulousLoaded",  could modify this to allow for the experimenter on the python client to specify information such as sequence name, test subject ID, and state number to allow for easier parsing of the data.
 
 
 
