@@ -35,15 +35,16 @@ public class CameraController : MonoBehaviour
                 LSL.LSL.IRREGULAR_RATE, channel_format_t.cf_string, "HashInfoOrSomething");
     private StreamOutlet outlet;
     private string[] sample = {"StimulousLoaded"};
+    private bool shouldRecordSample;
     
     void Awake(){
+        shouldRecordSample = false;
         if(CameraController.cam == null) CameraController.cam = this;
         else{
             Destroy(this);
             Debug.LogError("More than one CameraController Exists Destorying");
         }
-        //Create LSL outlet
-        outlet = new StreamOutlet(info);
+        HandleLSL();
     }
     // Start is called before the first frame update
     void Start(){
@@ -112,16 +113,12 @@ public class CameraController : MonoBehaviour
         cam.nextState = state;
     }
     public void SetState(ViewState state){
-        var start = Time.realtimeSinceStartup; 
         loading = false;
         cam.SetTarget(cam.LoadNewModel(cam.models[state.model_id]));    
         cam.ResetDisplay();
         cam.leiaDisplay.DesiredLightfieldValue = (state.is3D) ? 1 : 0;
         cam.Rotate(state.Orientation.x, state.Orientation.y);
-        var end = Time.realtimeSinceStartup; 
-        var delay  = end - start;
-        Debug.Log(delay*1000);
-        outlet.push_sample(sample);
+        shouldRecordSample = true;
     }
 
     public ViewState GetCurrentState(){
@@ -156,5 +153,19 @@ public class CameraController : MonoBehaviour
             Destroy(this.target.gameObject);
         this.target = Instantiate(model).transform;
         return this.target.gameObject;
+    }
+
+    IEnumerator HandleLSL(){
+        outlet = new StreamOutlet(info);
+        while(true)
+        {
+            yield return new WaitForEndOfFrame(); 
+            if(shouldRecordSample)
+            {
+                outlet.push_sample(sample);
+                shouldRecordSample = false;
+            }
+        }
+        yield return null; 
     }
 }
