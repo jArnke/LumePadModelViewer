@@ -50,5 +50,13 @@ Back on the python client issue the command "send_sequence" to load the sequence
 Now to begin cycling through states issue the command "next" after recieving this command the app will load the next state within the sequence and send an LSL marker upon completion
 
 
+### TODO
+
+- Ability to save and store multiple sequences
+  - Currently when storing a sequence it will be saved with the name my_seq.txt can easilly modify this to allow for custom names and having multiple sequences stored at once to send back later
+- Improving sent by LSL Markers
+  - Currently all Markers simply send the String "Stimuli Loaded",  could modify this to allow for the experimenter on the python client to specify information such as sequence name, test subject ID, and state number to allow for easier parsing of the data.
+
+
 
 
