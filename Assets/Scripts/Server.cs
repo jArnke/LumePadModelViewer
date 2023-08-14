@@ -93,11 +93,11 @@ public class ModelViewerService : WebSocketBehavior
                 Send(CameraController.GetSerializedSequence());
                 break;
             case "load_sequence":
+                Debug.Log($"Sequence = {args}");
                 string[] states = args.Split(' ');
                 current_sequence = new List<ViewState>();
                 viewStateIdx = -1;
                 foreach(string state in states){
-                    Debug.Log(state);
                     ViewState newViewState = ViewState.LoadFromString(state);
                     current_sequence.Add(newViewState);
                 }

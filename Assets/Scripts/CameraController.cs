@@ -32,7 +32,7 @@ public class CameraController : MonoBehaviour
 
     //LSL Stuff
     private StreamInfo info = new StreamInfo("StimulousMarkers", "Markers", 1,
-                LSL.LSL.IRREGULAR_RATE, channel_format_t.cf_string, "HashInfoOrSomething");
+                LSL.LSL.IRREGULAR_RATE, channel_format_t.cf_string, "LumePadModelViewer");
     private StreamOutlet outlet;
     private string[] sample = {"StimulousLoaded"};
     private bool shouldRecordSample;
