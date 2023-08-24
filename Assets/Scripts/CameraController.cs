@@ -27,6 +27,7 @@ public class CameraController : MonoBehaviour
 
 
     protected List<ViewState> ViewSequence;
+    public int currentState;
     protected bool loading = false;
     protected ViewState nextState;
 
@@ -115,6 +116,7 @@ public class CameraController : MonoBehaviour
     public void SetState(ViewState state){
         loading = false;
         cam.SetTarget(cam.LoadNewModel(cam.models[state.model_id]));    
+        model_num = state.model_id;
         cam.ResetDisplay();
         cam.leiaDisplay.DesiredLightfieldValue = (state.is3D) ? 1 : 0;
         cam.Rotate(state.Orientation.x, state.Orientation.y);
@@ -131,6 +133,7 @@ public class CameraController : MonoBehaviour
 
     public void AddCurrentStateToSequence(){
         AddStateToSequence(GetCurrentState());
+        currentState = ViewSequence.Count - 1;
     }
     public void AddStateToSequence(ViewState state){
         ViewSequence.Add(state);
@@ -147,6 +150,36 @@ public class CameraController : MonoBehaviour
     public static void LoadSerializedSequence(string sequenceData){
     }
     public List<ViewState> GetSequence(){return ViewSequence;}
+
+    public void RemoveState(int index){
+        if(index<0){return;}
+        if(ViewSequence.Count < index+1){return;}
+
+        ViewSequence.RemoveAt(index);
+
+        if(index <= currentState){currentState--;}
+        if(currentState < 0){currentState = 0;}
+
+        if(ViewSequence.Count > 0){
+            SelectState(currentState);
+        }
+
+    }
+
+    public void SelectState(int index){
+        if(index < 0) {return;}
+        if(ViewSequence.Count < index + 1){return;}
+
+        currentState = index;
+        LoadState(ViewSequence[index]);
+    }
+
+    public void OverwriteState(int index){
+        if(index < 0) {return;}
+        if(ViewSequence.Count < index + 1){return;}
+
+        ViewSequence[index] = GetCurrentState();
+    }
 
     private GameObject LoadNewModel(GameObject model){
         if(this.target != null)
