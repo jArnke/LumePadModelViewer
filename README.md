@@ -13,49 +13,41 @@ Drag LeiaLoftSDK_Public unity package file from download into assets folder in U
 ## Python Server
 
 To use the python connection make sure the websocket-client library is installed
+aswell as customtkinter in order to use the GUI client
 
-```pip install websocket-client```
-
-or to upgrade the websocket client package use
-
-```pip install --upgrade websocket-client```
+```
+pip install websocket-client
+pip install customtkinter
+```
 
 ### Commands
 
 To use the python script first make sure the App is loaded on the tablet and connected to the same network as the location where you intend to run the script
 
-Next run the main.py script
-
-From here you will be asked to issue a command:
+Then run the GUI.py script.
 
 #### Create a stimuli sequence for later testing
 
-First create a sequence of stimuli from within the app by selecting the model to view and moving it into the desired orientation.
-Next tap the button on the top right labeled "Save State".
+Open the App on the LumePad and use the Add state button to add the current state to the sequence.
+You can overwrite states by first getting to the orientation you would like, then tapping the save button on the state you wish to overwrite
 
-Repeat until you have completed your desired sequence.
+On the python client in the Create Sequence section type in the name of the sequence, and click the Save button
 
-Now back on the python client issue the command "store_sequence"
-
-A file named my_seq.txt will be created with the desired sequence
+A file will be created locally under the ./Sequences/ with the desired sequence
 
 #### Loading a sequence back for experimentation
 
-Make sure the sequence file you wish to load is stored in the same directory as the main.py script.
+Type in the name of the sequence you would like to load in the Load Section on the python client
 
-Select the "Next Scene" button on the app to move into the test subject view
+Press Load to load the sequence and switch to the first state of that sequence
 
-Back on the python client issue the command "send_sequence" to load the sequence onto the app
-
-Now to begin cycling through states issue the command "next" after recieving this command the app will load the next state within the sequence and send an LSL marker upon completion
+Press Next to iterate through the sequence
 
 
 ### TODO
 
-- Ability to save and store multiple sequences
-  - Currently when storing a sequence it will be saved with the name my_seq.txt can easilly modify this to allow for custom names and having multiple sequences stored at once to send back later
-- Improving sent by LSL Markers
-  - Currently all Markers simply send the String "StimulousLoaded",  could modify this to allow for the experimenter on the python client to specify information such as sequence name, test subject ID, and state number to allow for easier parsing of the data.
+- Fix LSL 
+- Implement test subject view with desired functionality, spacial orientation test stuff
 
 
 
