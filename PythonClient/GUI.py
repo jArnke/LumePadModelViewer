@@ -85,7 +85,7 @@ nextButton = customtkinter.CTkButton(master=control, corner_radius=10, command=n
 nextButton.pack(pady=12, padx=10)
 
 # Websocket Setup:
-ws = websocket.create_connection("ws://localhost:3000/ModelViewer");
+ws = None
 
 
 root.mainloop()
