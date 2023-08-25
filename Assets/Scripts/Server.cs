@@ -77,17 +77,8 @@ public class ModelViewerService : WebSocketBehavior
 
         switch (command){
             case "next":
-                viewStateIdx++;
-                Debug.Log(viewStateIdx);
-                if (viewStateIdx < current_sequence.Count)
-                {
-                    Send("Loading next state");
-                    CameraController.LoadState(current_sequence[viewStateIdx]);
-                }
-                else
-                {
-                    Send($"Reached end of sequence of length {current_sequence.Count}");
-                }
+                CameraController.NextState();
+                Send("loaded");
                 break;
             case "get_sequence":
                 Send(CameraController.GetSerializedSequence());
@@ -98,9 +89,12 @@ public class ModelViewerService : WebSocketBehavior
                 current_sequence = new List<ViewState>();
                 viewStateIdx = -1;
                 foreach(string state in states){
+                    if(state=="" || state==" ")
+                        break;
                     ViewState newViewState = ViewState.LoadFromString(state);
                     current_sequence.Add(newViewState);
                 }
+                CameraController.LoadSequence(current_sequence);
                 Send("Sequence Loaded");
                 break;
             default: 

@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 27266052}
   m_Layer: 0
   m_Name: LeiaDisplay
-  m_TagString: Untagged
+  m_TagString: LeiaDisplay
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -323,7 +323,6 @@ MonoBehaviour:
   offset: {x: 0, y: 0, z: 0}
   speed: 1
   vertSpeed: 1
-  leiaDisplay: {fileID: 27266052}
   models:
   - {fileID: 919132149155446097, guid: ffe620763e94c5d408f921d8c7dd1dd5, type: 3}
   - {fileID: 919132149155446097, guid: 2de19d3d2d369424189f124ae8d09dee, type: 3}

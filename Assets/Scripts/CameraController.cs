@@ -4,7 +4,7 @@ using UnityEngine;
 
 using LeiaLoft;
 
-using LSL;
+//using LSL;
 
 public class CameraController : MonoBehaviour
 {
@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float speed;
     [SerializeField] private float vertSpeed;
 
-    [SerializeField] private LeiaDisplay leiaDisplay;
+    private LeiaDisplay leiaDisplay;
 
     [SerializeField] private GameObject[] models;
 
@@ -24,18 +24,22 @@ public class CameraController : MonoBehaviour
 
     private int model_num = 0;
     
+    protected bool newSequence = false;
+    protected List<ViewState> nextSequence;
 
 
-    protected List<ViewState> ViewSequence;
+    public List<ViewState> ViewSequence;
     public int currentState;
     protected bool loading = false;
+    protected bool loadNext = false;
     protected ViewState nextState;
 
-    //LSL Stuff
+    /*LSL Stuff
     private StreamInfo info = new StreamInfo("StimulousMarkers", "Markers", 1,
                 LSL.LSL.IRREGULAR_RATE, channel_format_t.cf_string, "LumePadModelViewer");
     private StreamOutlet outlet;
     private string[] sample = {"StimulousLoaded"};
+    */
     private bool shouldRecordSample;
     
     void Awake(){
@@ -45,7 +49,8 @@ public class CameraController : MonoBehaviour
             Destroy(this);
             Debug.LogError("More than one CameraController Exists Destorying");
         }
-        HandleLSL();
+        leiaDisplay = GameObject.FindGameObjectWithTag("LeiaDisplay").GetComponent<LeiaDisplay>();
+     //   HandleLSL();
     }
     // Start is called before the first frame update
     void Start(){
@@ -64,6 +69,19 @@ public class CameraController : MonoBehaviour
         }
         if (loading)
             SetState(nextState);
+        if (newSequence){
+            ViewSequence = nextSequence;
+            currentState = 0;
+            newSequence = false;
+            SetState(ViewSequence[currentState]);
+        }
+        if(loadNext){
+            if (currentState+1 < ViewSequence.Count){
+                currentState++;
+                SetState(ViewSequence[currentState]);
+            }
+            loadNext = false;
+        }
     }
 
     public void CycleModel(int dir){
@@ -113,6 +131,14 @@ public class CameraController : MonoBehaviour
         cam.loading = true;
         cam.nextState = state;
     }
+    public static void LoadSequence(List<ViewState> states){
+        cam.newSequence = true;
+        cam.nextSequence = states;
+    }
+    public static void NextState(){
+        cam.loadNext = true;
+    }
+
     public void SetState(ViewState state){
         loading = false;
         cam.SetTarget(cam.LoadNewModel(cam.models[state.model_id]));    
@@ -188,6 +214,7 @@ public class CameraController : MonoBehaviour
         return this.target.gameObject;
     }
 
+    /*
     IEnumerator HandleLSL(){
         outlet = new StreamOutlet(info);
         while(true)
@@ -201,4 +228,5 @@ public class CameraController : MonoBehaviour
         }
         yield return null; 
     }
+    */
 }
