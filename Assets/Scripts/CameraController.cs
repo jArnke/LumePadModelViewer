@@ -1,10 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 using LeiaLoft;
 
-//using LSL;
+using LSL;
+using TMPro;
 
 public class CameraController : MonoBehaviour
 {
@@ -15,6 +17,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Vector3 offset;
     [SerializeField] private float speed;
     [SerializeField] private float vertSpeed;
+
+    [SerializeField] private TMP_Text err_text;
 
     private LeiaDisplay leiaDisplay;
 
@@ -34,26 +38,46 @@ public class CameraController : MonoBehaviour
     protected bool loadNext = false;
     protected ViewState nextState;
 
-    /*LSL Stuff
-    private StreamInfo info = new StreamInfo("StimulousMarkers", "Markers", 1,
-                LSL.LSL.IRREGULAR_RATE, channel_format_t.cf_string, "LumePadModelViewer");
+    // LSL Stuff
+    private StreamInfo info;// = new StreamInfo("StimulousMarkers", "Markers");
     private StreamOutlet outlet;
     private string[] sample = {"StimulousLoaded"};
-    */
+    private IEnumerator lsl_coroutine;
+    
     private bool shouldRecordSample;
     
     void Awake(){
+        //LSL
         shouldRecordSample = false;
+
+
         if(CameraController.cam == null) CameraController.cam = this;
         else{
             Destroy(this);
             Debug.LogError("More than one CameraController Exists Destorying");
         }
         leiaDisplay = GameObject.FindGameObjectWithTag("LeiaDisplay").GetComponent<LeiaDisplay>();
-     //   HandleLSL();
+
+        try{
+            info = new StreamInfo("Stimulous Markers", "Marker");
+            outlet = new StreamOutlet(info);
+            err_text.text = "LSL Init Success!";
+        }
+        catch(Exception e){
+            err_text.text = e.Message;
+        }
+        Debug.Log("Creating Stream");
+        //lsl_coroutine = HandleLSL();
+        //StartCoroutine(lsl_coroutine);
+    }
+
+    void OnDisable(){
+        //Debug.Log("Disabling LSL");
+        //StopCoroutine(lsl_coroutine);
     }
     // Start is called before the first frame update
     void Start(){
+
         this.SetTarget(this.LoadNewModel(models[model_num]));
         ResetDisplay(); 
         ViewSequence = new List<ViewState>();
@@ -214,19 +238,28 @@ public class CameraController : MonoBehaviour
         return this.target.gameObject;
     }
 
-    /*
+    
     IEnumerator HandleLSL(){
-        outlet = new StreamOutlet(info);
+        try{
+            info = new StreamInfo("Stimulous Markers", "Marker");
+            outlet = new StreamOutlet(info);
+            err_text.text = "LSL Init Success!";
+        }
+        catch(Exception e){
+            err_text.text = e.Message;
+        }
+        Debug.Log("Creating Stream");
         while(true)
         {
             yield return new WaitForEndOfFrame(); 
             if(shouldRecordSample)
             {
+                Debug.Log("RecordingSample");
                 outlet.push_sample(sample);
                 shouldRecordSample = false;
             }
         }
         yield return null; 
     }
-    */
+    
 }
