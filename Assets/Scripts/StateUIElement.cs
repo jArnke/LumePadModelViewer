@@ -8,7 +8,7 @@ public class StateUIElement : MonoBehaviour
 {
     public int index;
     public bool selected;
-    private CameraController cam;
+    private SubjectViewController cam;
 
     private Button remove;
     private Button load;
@@ -20,7 +20,7 @@ public class StateUIElement : MonoBehaviour
     void Start()
     {
         selected = false;
-        cam = GameObject.FindGameObjectWithTag("Camera").GetComponent<CameraController>();
+        cam = GameObject.FindGameObjectWithTag("Camera").GetComponent<SubjectViewController>();
 
         remove = transform.Find("Delete").GetComponent<Button>();
         remove.onClick.AddListener( removeThis );
@@ -43,14 +43,19 @@ public class StateUIElement : MonoBehaviour
     }
 
     void removeThis(){
-        cam.RemoveState(index);
+        if(cam.currentStateIdx == index){
+            cam.currentStateIdx = 0;
+        }
+        cam.states.RemoveAt(index);
     }
 
     void saveThis(){
-        cam.OverwriteState(index);
+        cam.SaveCurrentState();
+        cam.states[index] = cam.states[cam.states.Count-1];
+        cam.states.RemoveAt(cam.states.Count-1);
     }
 
     void loadThis(){
-        cam.SelectState(index);
+        cam.LoadStateIndex(index);
     }
 }

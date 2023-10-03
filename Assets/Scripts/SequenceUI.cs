@@ -7,7 +7,7 @@ public class SequenceUI : MonoBehaviour
     [SerializeField] GameObject contentView;
     [SerializeField] GameObject stateUIElement;
     
-    [SerializeField] CameraController camController;
+    [SerializeField] SubjectViewController camController;
 
     List<StateUIElement> UISequence;
     
@@ -20,7 +20,7 @@ public class SequenceUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        List<ViewState> sequence = camController.GetSequence();
+        List<SubjectViewController.ViewState> sequence = camController.states;
 
         if (UISequence.Count < sequence.Count){
             for(int i  = UISequence.Count; i<sequence.Count; i++){
@@ -41,8 +41,8 @@ public class SequenceUI : MonoBehaviour
             UISequence[i].selected = false;
         }
 
-        if(UISequence.Count != 0){
-            UISequence[camController.currentState].selected = true;
+        if(UISequence.Count != 0 && camController.currentStateIdx >= 0){
+            UISequence[camController.currentStateIdx].selected = true;
         }
 
     }
