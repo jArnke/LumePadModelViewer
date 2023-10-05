@@ -156,7 +156,7 @@ class SubjectViewController: MonoBehaviour{
     void EditUpdate(){
         if(Input.touchCount >= 1){
             Vector2 swipe = Input.GetTouch(0).deltaPosition;
-            RotateCamera(new Vector2(speed*swipe.x,speed*swipe.y));
+            RotateCamera(new Vector2(speed*swipe.x,-speed*swipe.y));
         }
     }
     void StartEditMode(string sequence){
@@ -168,6 +168,7 @@ class SubjectViewController: MonoBehaviour{
         else{
             this.states = new List<ViewState>();
             this.currentStateIdx = -1;
+            this.modelPath = "";
         }
         this.editUI.SetActive(true);
         this.mainMenu.SetActive(false);
@@ -219,12 +220,16 @@ class SubjectViewController: MonoBehaviour{
         RotateCamera(position);
     }
     public void SetDistance(float distance){
+        if(target == null)
+            return;
         this.distance = distance;
         
         Vector3 dir = this.transform.position - target.position;
         this.transform.position = dir.normalized*distance;
     }
     public void SetScale(float scale){
+        if(target == null)
+            return;
         this.scale = scale;
         target.localScale = Vector3.one * scale;
     }
@@ -236,6 +241,8 @@ class SubjectViewController: MonoBehaviour{
         
     }
     void RotateCamera(Vector2 rotation){
+        if(target==null)
+            return;
         this.currentRotation += rotation;
         //Calculate new position
         Vector3 pivotPoint = target.position;
@@ -249,6 +256,8 @@ class SubjectViewController: MonoBehaviour{
         //reload main menu?
     }
     void ResetPosition(float distance){
+        if(target == null)
+            return;
         this.distance = distance;
         this.transform.position = target.position - new Vector3(0,0,distance);
         this.transform.LookAt(target);
