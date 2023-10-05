@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 using LeiaLoft;
 using LSL;
@@ -49,6 +50,12 @@ class SubjectViewController: MonoBehaviour{
             state.model = Model.Deserialize(data[8]);
             return state;
         }
+    }
+    private bool IsTouchOverUI(Touch touch){
+        /*if(touch.phase != TouchPhase.Began)
+            return false;
+       */ 
+        return EventSystem.current.IsPointerOverGameObject(touch.fingerId);    
     }
 
     private enum CamState{
@@ -155,8 +162,11 @@ class SubjectViewController: MonoBehaviour{
     }
     void EditUpdate(){
         if(Input.touchCount >= 1){
-            Vector2 swipe = Input.GetTouch(0).deltaPosition;
-            RotateCamera(new Vector2(speed*swipe.x,-speed*swipe.y));
+            Touch touch = Input.GetTouch(0);
+            if(!IsTouchOverUI(touch)){
+                Vector2 swipe = touch.deltaPosition;
+                RotateCamera(new Vector2(speed*swipe.x,-speed*swipe.y));
+            }
         }
     }
     void StartEditMode(string sequence){
