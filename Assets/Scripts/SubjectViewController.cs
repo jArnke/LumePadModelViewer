@@ -1,35 +1,33 @@
 using System;
 using System.Text;
 using System.IO;
-using Dummiesman;
-using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 using LeiaLoft;
-using LSL;
 
 class SubjectViewController: MonoBehaviour{
     
     public class Model{
-        public Vector3 scale;
-        public String path;    
-        public String materialPath;
+        public float scale;
+        public int model_idx;
 
         public String Serialize(){
-            return $"{scale.x},{scale.y},{scale.z},{path},{materialPath}";
+            return $"{scale},{model_idx}";
         }
         public static Model Deserialize(string serializedModel){
             Model model = new Model();
             string[] data = serializedModel.Split(",");
-            model.scale = new Vector3(float.Parse(data[0]), float.Parse(data[1]), float.Parse(data[2])); 
-            model.path = data[3];
-            model.materialPath = data[4];
+            model.scale = float.Parse(data[0]);
+            model.model_idx = int.Parse(data[1]);
             return model;
         }
     }
+
+    public List<GameObject> modelPrefabs;
+    public Model model;
 
     public class ViewState{
         public Vector3 position;
@@ -52,9 +50,6 @@ class SubjectViewController: MonoBehaviour{
         }
     }
     private bool IsTouchOverUI(Touch touch){
-        /*if(touch.phase != TouchPhase.Began)
-            return false;
-       */ 
         return EventSystem.current.IsPointerOverGameObject(touch.fingerId);    
     }
 
@@ -66,6 +61,7 @@ class SubjectViewController: MonoBehaviour{
     };
 
 
+    private bool isUITouch = false;
     Camera cam;
     float currTime;
     Transform target;
@@ -74,8 +70,8 @@ class SubjectViewController: MonoBehaviour{
     public int currentStateIdx;
     public float distance;
     public bool is3D;
+    private float originalScale;
     public float scale;
-    public string modelPath;
     string seqPath;
     
     CamState camState = CamState.Inactive;
@@ -156,6 +152,10 @@ class SubjectViewController: MonoBehaviour{
             this.restPanel.SetActive(false);
             camState = CamState.Stimuli;
             lsl.RecordSample($"State Loaded, Stimuli: {currentStateIdx}");
+            if(currentStateIdx >= states.Count){
+                if(states[currentStateIdx] == null)
+                    OpenMainMenu();
+            }
             LoadState(states[currentStateIdx]);
             currTime = 0;
         }
@@ -163,7 +163,9 @@ class SubjectViewController: MonoBehaviour{
     void EditUpdate(){
         if(Input.touchCount >= 1){
             Touch touch = Input.GetTouch(0);
-            if(!IsTouchOverUI(touch)){
+            if(touch.phase == TouchPhase.Began)
+                isUITouch = IsTouchOverUI(touch);
+            if(!isUITouch){
                 Vector2 swipe = touch.deltaPosition;
                 RotateCamera(new Vector2(speed*swipe.x,-speed*swipe.y));
             }
@@ -178,7 +180,7 @@ class SubjectViewController: MonoBehaviour{
         else{
             this.states = new List<ViewState>();
             this.currentStateIdx = -1;
-            this.modelPath = "";
+            this.LoadModelByIdx(0);
         }
         this.editUI.SetActive(true);
         this.mainMenu.SetActive(false);
@@ -196,66 +198,51 @@ class SubjectViewController: MonoBehaviour{
         LoadModel(state.model);
         this.transform.position = state.position;
         this.transform.rotation = state.rotation;
-        this.distance = (state.position - target.position).magnitude;
+        this.distance = Vector3.Distance(this.transform.position, targetRoot.transform.position);
         Toggle3D(state.is3D);
     }
     void LoadModel(Model model){
         if(target != null)
             Destroy(target.gameObject);
+        this.model = model;
 
-        this.modelPath = model.path;
-        if (!File.Exists(model.path)){
-            GameObject go = new GameObject();
-            target = go.transform;
-            go.AddComponent<MeshFilter>().mesh = defaultMesh;
-            go.AddComponent<MeshRenderer>().material = defaultMaterial;
-            Debug.LogError("File Not found");
-        }else{
-            target = new OBJLoader().Load(model.path).transform;
-            Debug.Log("File Loaded Successfully!");
-        }
+        Debug.Log("Creating Model Obj"); 
+        GameObject go = Instantiate(this.modelPrefabs[model.model_idx]);
+        target = go.transform;
         target.parent = targetRoot; 
-        target.localPosition = Vector3.zero;
-        target.localRotation = Quaternion.identity;
-        target.localScale = model.scale;
-
+        this.originalScale = target.localScale.x;
+        target.localScale *= model.scale;
+        this.scale = model.scale;
     }
-    void PositionCamera(Vector2 position, float distance){
 
-        if(target == null){
-            Debug.LogError("Can't set camera position without first loading model");
-            return;
-        }
-        ResetPosition(distance);
-        RotateCamera(position);
+    public void LoadModelByIdx(int idx){
+        Model model = new Model();
+        model.scale = 1;
+        model.model_idx = (idx >= 0 && idx  < modelPrefabs.Count) ? idx : 0;
+        LoadModel(model);
     }
+
     public void SetDistance(float distance){
         if(target == null)
             return;
         this.distance = distance;
         
-        Vector3 dir = this.transform.position - target.position;
+        Vector3 dir = this.transform.position - targetRoot.position;
         this.transform.position = dir.normalized*distance;
     }
     public void SetScale(float scale){
         if(target == null)
             return;
         this.scale = scale;
-        target.localScale = Vector3.one * scale;
+        target.localScale = Vector3.one * originalScale * scale;
     }
-    public void LoadMesh(string meshPath){
-        Model model = new Model();
-        model.scale = Vector3.one * this.scale;
-        model.path = meshPath;
-        LoadModel(model);
-        
-    }
+
     void RotateCamera(Vector2 rotation){
         if(target==null)
             return;
         this.currentRotation += rotation;
         //Calculate new position
-        Vector3 pivotPoint = target.position;
+        Vector3 pivotPoint = targetRoot.position;
         this.transform.RotateAround(pivotPoint, this.transform.up, rotation.x);
         this.transform.RotateAround(pivotPoint, this.transform.right, rotation.y); 
     }
@@ -269,8 +256,8 @@ class SubjectViewController: MonoBehaviour{
         if(target == null)
             return;
         this.distance = distance;
-        this.transform.position = target.position - new Vector3(0,0,distance);
-        this.transform.LookAt(target);
+        this.transform.position = targetRoot.position - new Vector3(0,0,distance);
+        this.transform.LookAt(targetRoot);
     }
     void StartRest(){
         this.restPanel.SetActive(true);
@@ -286,13 +273,16 @@ class SubjectViewController: MonoBehaviour{
         string seq = File.ReadAllText(seqPath);
         this.StartEditMode(seq);
     }
-    public void StartViewing(string seqPath){
+    public void StartViewing(string seqPath, float stimLen, float restLen){
+        this.restPeriodLength = restLen;
+        this.stimuliShownLength = stimLen;
         this.mainMenu.SetActive(false);
         this.editUI.SetActive(false);
         this.seqPath = seqPath;
         string seq = File.ReadAllText(seqPath);
         this.LoadSerializedSequence(seq);
         this.StartRest();
+        this.lsl.RecordSample("Starting Sequence");
     }
     public void CreateNewSeq(string seqPath){
         while(File.Exists(seqPath)){
@@ -314,10 +304,11 @@ class SubjectViewController: MonoBehaviour{
         byte[] bytes = Encoding.ASCII.GetBytes(seq);
         FileStream stream = File.Create(seqPath);
         stream.Write(bytes, 0, bytes.Length);
-        stream.Close();
+        stream.Close();     
         this.OpenMainMenu();
     }
-    void OpenMainMenu(){
+    public void OpenMainMenu(){
+        this.Toggle3D(false);
         this.camState = CamState.Inactive;
         if(target != null)
             Destroy(target.gameObject);
@@ -351,8 +342,8 @@ class SubjectViewController: MonoBehaviour{
         newState.position = this.transform.position;
         //Save current model params
         Model model = new Model();
-        model.scale = Vector3.one * scale;
-        model.path = modelPath;
+        model.scale = scale;
+        model.model_idx = this.model.model_idx;
         newState.model = model;
         states.Add(newState);
         

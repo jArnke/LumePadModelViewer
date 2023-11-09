@@ -9,16 +9,28 @@ public class SequenceSelectUI : MonoBehaviour
 {
     private string seqPath;
     private List<string> ActualPaths;
-
-    [SerializeField] TMP_Dropdown dropdown;
-    [SerializeField] TMP_InputField inputField;
-    [SerializeField] Button editButton;
-    [SerializeField] Button viewButton;
-    [SerializeField] Button newSequence;
-    [SerializeField] Button refresh;
     [SerializeField] SubjectViewController cam;
 
+    [Header ("Sequence Creation")]
+    [SerializeField] TMP_InputField inputField;
+    [SerializeField] Button newSequence;
+
+    [Header ("Select Sequence")]
+    [SerializeField] TMP_Dropdown dropdown;
+    [SerializeField] Button editButton;
+    [SerializeField] Button deleteButton;
+    [SerializeField] Button viewButton;
+    [SerializeField] Button refresh;
+
+    [Header ("Stimuli and Rest Period Setup")]
+    [SerializeField] TMP_InputField restLength;
+    [SerializeField] TMP_InputField stimLength;
+    [SerializeField] float minLength;
+    [SerializeField] float maxLength;
+
     void Awake(){
+        restLength.text = "2";
+        stimLength.text = "5";
     }
 
     // Start is called before the first frame update
@@ -32,9 +44,39 @@ public class SequenceSelectUI : MonoBehaviour
         Refresh();
 
         editButton.onClick.AddListener( () => {StartEdit();} );
+        deleteButton.onClick.AddListener( DeleteSequence );
         viewButton.onClick.AddListener( () => {StartView();} );
         newSequence.onClick.AddListener( () => {StartCreateSeq();} );
         refresh.onClick.AddListener( () => {Refresh();} );
+        stimLength.onValueChanged.AddListener( (m) => {
+                if(m.Length == 0) return;
+                if(m.Length == 1)
+                    if(m == "-") m = "0";
+                float x = float.Parse(m);
+                stimLength.text = SanitizeLength(x).ToString();
+                });
+        restLength.onValueChanged.AddListener( (m) => {
+                if(m.Length == 0) return;
+                if(m.Length == 1)
+                    if(m == "-") m = "0";
+                float x = float.Parse(m);
+                restLength.text = SanitizeLength(x).ToString();
+                });
+    }
+
+    float SanitizeLength(float x){
+        if(x < minLength)
+            return minLength;
+        if(x > maxLength)
+            return maxLength;
+        return x;
+    }
+
+    void DeleteSequence(){
+        if(dropdown.options.Count <= 0)
+            return;
+        File.Delete(ActualPaths[dropdown.value]);
+        Refresh();
     }
 
     void StartEdit(){
@@ -47,7 +89,12 @@ public class SequenceSelectUI : MonoBehaviour
     void StartView(){
         if(dropdown.options.Count <= 0)
             return;
-        cam.StartViewing(ActualPaths[dropdown.value]);
+        
+        cam.StartViewing(
+                ActualPaths[dropdown.value], 
+                float.Parse(stimLength.text), 
+                float.Parse(restLength.text)
+                );
     }
 
     void StartCreateSeq(){
