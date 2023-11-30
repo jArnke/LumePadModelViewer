@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
-
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -55,6 +55,7 @@ class SubjectViewController: MonoBehaviour{
 
     private enum CamState{
         Rest,
+        Question,
         Stimuli,
         Inactive,
         Edit
@@ -73,6 +74,7 @@ class SubjectViewController: MonoBehaviour{
     private float originalScale;
     public float scale;
     string seqPath;
+    bool questionsEnabled;
     
     CamState camState = CamState.Inactive;
 
@@ -95,7 +97,10 @@ class SubjectViewController: MonoBehaviour{
     [SerializeField] LeiaDisplay leiaDisplay;
     [SerializeField] GameObject editUI;
     [SerializeField] GameObject mainMenu;
+    [SerializeField] GameObject questionUI;
+    [SerializeField] float questionShowLength;
     
+
 
     /* Built-Ins */
     void Awake(){
@@ -116,6 +121,9 @@ class SubjectViewController: MonoBehaviour{
         switch (camState){
         case CamState.Inactive:
             break;
+        case CamState.Question:
+            QuestionUpdate();
+            break;
         case CamState.Rest:
             RestUpdate();
             break;
@@ -130,18 +138,58 @@ class SubjectViewController: MonoBehaviour{
         }
 
     }
+
+    void QuestionUpdate(){
+        questionUI.SetActive(true);
+        currTime += Time.deltaTime;
+        if(currTime > questionShowLength){
+            lsl.RecordSample("Response: None");
+            camState = CamState.Rest;
+            questionUI.SetActive(false);
+            if(currentStateIdx>=states.Count){
+                restPanel.SetActive(false);
+                FinishSequence();
+                camState = CamState.Inactive;
+            }
+            else{
+                lsl.RecordSample($"Rest Started, Stimuli: {currentStateIdx}");
+                StartRest();
+                camState = CamState.Rest;
+            }
+            currTime = 0;
+        }
+    }
+    public void SubjectResponse(bool seenBefore){
+        lsl.RecordSample($"Response: {seenBefore}");
+        questionUI.SetActive(false);
+        restPanel.SetActive(false);
+        if(currentStateIdx>=states.Count){
+            FinishSequence();
+            camState = CamState.Inactive;
+        }
+        else{
+            lsl.RecordSample($"Rest Started, Stimuli: {currentStateIdx}");
+            StartRest();
+            camState = CamState.Rest;
+        }
+        currTime = 0;
+    }
     void StimuliUpdate(){
         currTime += Time.deltaTime;
         if(currTime > stimuliShownLength){
             currentStateIdx++;
-            if(currentStateIdx>=states.Count){
+            if(questionsEnabled){
+                lsl.RecordSample($"Survey Shown");
+                StartRest();
+                camState = CamState.Question;
+            }
+            else if(currentStateIdx>=states.Count){
                 camState = CamState.Inactive;
                 FinishSequence();
             }
             else{
                 lsl.RecordSample($"Rest Started, Stimuli: {currentStateIdx}");
                 StartRest();
-                camState = CamState.Rest;
             }
             currTime = 0;
         }
@@ -273,7 +321,8 @@ class SubjectViewController: MonoBehaviour{
         string seq = File.ReadAllText(seqPath);
         this.StartEditMode(seq);
     }
-    public void StartViewing(string seqPath, float stimLen, float restLen){
+    public void StartViewing(string seqPath, float stimLen, float restLen, bool questionsEnabled, bool randomize){
+        this.questionsEnabled = questionsEnabled;
         this.restPeriodLength = restLen;
         this.stimuliShownLength = stimLen;
         this.mainMenu.SetActive(false);
@@ -282,7 +331,11 @@ class SubjectViewController: MonoBehaviour{
         string seq = File.ReadAllText(seqPath);
         this.LoadSerializedSequence(seq);
         this.StartRest();
-        this.lsl.RecordSample("Starting Sequence");
+        if(randomize){
+            System.Random rng = new System.Random();
+            this.states = states.OrderBy(a => rng.Next()).ToList();
+        }
+        this.lsl.RecordSample($"Starting Sequence: {SerializeSequence()}");
     }
     public void CreateNewSeq(string seqPath){
         while(File.Exists(seqPath)){

@@ -28,6 +28,10 @@ public class SequenceSelectUI : MonoBehaviour
     [SerializeField] float minLength;
     [SerializeField] float maxLength;
 
+
+    [SerializeField] Toggle randomize;
+    [SerializeField] Toggle survey;
+
     void Awake(){
         restLength.text = "2";
         stimLength.text = "5";
@@ -37,6 +41,7 @@ public class SequenceSelectUI : MonoBehaviour
     void Start()
     {
         ActualPaths = new List<string>();
+        Debug.Log(Application.persistentDataPath);
         seqPath = Path.Join(Application.persistentDataPath, "Sequences");
         if(!Directory.Exists(seqPath))
             Directory.CreateDirectory(seqPath);
@@ -93,7 +98,9 @@ public class SequenceSelectUI : MonoBehaviour
         cam.StartViewing(
                 ActualPaths[dropdown.value], 
                 float.Parse(stimLength.text), 
-                float.Parse(restLength.text)
+                float.Parse(restLength.text),
+                survey.isOn,
+                randomize.isOn
                 );
     }
 
