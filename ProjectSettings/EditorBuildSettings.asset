@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SequenceCreation.unity
     guid: 8250b70e38cf1144b9329246d48911e7
+  - enabled: 0
+    path: Assets/Scenes/MainMenu 1.unity
+    guid: ed20927001a0e437cb9d11f8a8b73669
   m_configObjects: {}

@@ -6,6 +6,7 @@ namespace LSL4Unity.Utils
 {
     public enum MomentForSampling { Update, FixedUpdate, LateUpdate, EndOfFrame }
 
+
     public static class LSLCommon
     {
         private const int DEFAULT_PLATTFORM_SPECIFIC_FRAMERATE = -1;

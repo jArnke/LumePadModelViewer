@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using TMPro;
-using NativeFilePickerNamespace;
 
 public class EditUI : MonoBehaviour
 {
@@ -16,6 +15,8 @@ public class EditUI : MonoBehaviour
     [SerializeField] Slider scale;
     [SerializeField] Button saveQuit;
     [SerializeField] Button upload;
+    [SerializeField] Button resetDistance;
+    [SerializeField] Button resetScale;
     [SerializeField] SequenceUI sequenceUI;
 
     [Header ("Parameteres")]
@@ -31,22 +32,6 @@ public class EditUI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ActualPaths = new List<string>();
-        this.modelPath = Path.Join(Application.persistentDataPath, "Models");
-        if(!Directory.Exists(modelPath)){
-            Directory.CreateDirectory(modelPath);
-        }
-        string localModelPath = Path.Join(Application.streamingAssetsPath, "Models");
-        foreach(string file in Directory.GetFiles(localModelPath)){
-            string fileName = Path.GetFileName(file);
-            string outputPath = Path.Join(modelPath, fileName);
-            if(file.Contains(".meta"))continue;
-            if(File.Exists(outputPath))
-                continue;
-            File.Copy(file, outputPath);
-        RefreshModels();
-            
-        }
         scale.minValue = minScale;
         if(maxScale < minScale){
             maxScale = minScale;
@@ -60,17 +45,14 @@ public class EditUI : MonoBehaviour
         distance.maxValue = maxDistance;
         
         RefreshModels();
-
         PullState();
-
         modelSelect.onValueChanged.AddListener( (call) => {PushStateModel();});
         toggle3D.onValueChanged.AddListener( (call) => {PushState3D();});
         distance.onValueChanged.AddListener( (call) => {PushStateDistance();});
         scale.onValueChanged.AddListener( (call) => {PushStateScale();});
-        upload.onClick.AddListener( UploadFiles ); //(call) => {UploadFiles();});
 
-        
-        
+        resetScale.onClick.AddListener(ResetScale);
+        resetDistance.onClick.AddListener(ResetDistance);
     }
 
     // Update is called once per frame
@@ -80,19 +62,21 @@ public class EditUI : MonoBehaviour
     }
 
     void PullState(){
-        for(int i=0;i<modelSelect.options.Count; i++){
-            if(modelSelect.options[i].text == viewController.modelPath){
-                modelSelect.SetValueWithoutNotify(i);
-                break;
-            }
-        }
+        this.modelSelect.SetValueWithoutNotify(viewController.model.model_idx);
         this.toggle3D.SetIsOnWithoutNotify(viewController.is3D);
         this.distance.SetValueWithoutNotify(viewController.distance);
         this.scale.SetValueWithoutNotify(viewController.scale);
     }
 
+    void ResetScale(){
+        this.scale.value = 1;
+    }
+    void ResetDistance(){
+        this.distance.value = 10;
+    }
+
     void PushStateModel(){
-        this.viewController.LoadMesh(ActualPaths[modelSelect.value]);
+        this.viewController.LoadModelByIdx(modelSelect.value);
     }
     void PushState3D(){
         this.viewController.Toggle3D(toggle3D.isOn);
@@ -103,43 +87,14 @@ public class EditUI : MonoBehaviour
     void PushStateDistance(){
         this.viewController.SetDistance(distance.value);
     }
-    void UploadFiles(){
-        Debug.Log("Clicked");
-        string[] filetypes = {".obj"};
-        NativeFilePicker.PickMultipleFiles(OnFilesPicked, filetypes);
-    }
 
-    void OnFilesPicked(string[] files){
-        if(files == null)
-            return;
-
-        foreach(string file in files){
-            string[] fileSegements = file.Split(Path.PathSeparator, System.StringSplitOptions.RemoveEmptyEntries);
-            string fileName = fileSegements[fileSegements.Length - 1];
-            File.Copy(file, Path.Join(modelPath,fileName));
-        }
-        RefreshModels();
-    }
     void RefreshModels(){
         modelSelect.ClearOptions();
-        ActualPaths.Clear();
-        List<string> options = new List<string>();
-        foreach(string file in Directory.GetFiles(modelPath)){
-            if(file.Contains(".meta"))
-                continue;
-
-            options.Add(Path.GetFileName(file));
-            ActualPaths.Add(file);
+        List<string> models = new List<string>();
+        for(int i = 0;i<viewController.modelPrefabs.Count;i++){
+            models.Add(viewController.modelPrefabs[i].name);
         }
-        modelSelect.AddOptions(options);
+        modelSelect.AddOptions(models);
     }
 
-    void PushState(){
-        Debug.Log("state pushed");
-        
-        this.viewController.LoadMesh(modelSelect.options[modelSelect.value].text);
-        this.viewController.Toggle3D(toggle3D.isOn);
-        this.viewController.SetDistance(distance.value);
-        this.viewController.SetScale(scale.value);
-    }
 }

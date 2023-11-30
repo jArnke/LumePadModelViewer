@@ -1,13 +1,12 @@
 using UnityEngine;
-using Unity;
-
 using System;
 using System.Collections;
-using System.Collections.Generic;
-
 using LSL;
+using TMPro;
+using LSL4Unity;
 
 class LSLHandler : MonoBehaviour {
+    [SerializeField] TMP_Text status;
 
     StreamInfo info;    
     StreamOutlet outlet;
@@ -19,10 +18,16 @@ class LSLHandler : MonoBehaviour {
         SetupLSL();
     }
     void SetupLSL(){
-        info = new StreamInfo("Stimulous Markers", "Marker");
-        outlet = new StreamOutlet(info);
+        try{
 
-        coroutine = StartCoroutine(RecordCoroutine());
+            info = new StreamInfo("Stimulous Markers", "Marker", 1, 0, channel_format_t.cf_string, "LumePad");
+            outlet = new StreamOutlet(info);
+
+            coroutine = StartCoroutine(RecordCoroutine());
+        }
+        catch(Exception e){
+            status.text = e.Message;
+        }
     }
 
     public void RecordSample(String message){
@@ -36,7 +41,6 @@ class LSLHandler : MonoBehaviour {
             yield return new WaitForEndOfFrame();
             if(shouldRecordSample){
                 outlet.push_sample(sample);
-                Debug.Log(sample);
                 shouldRecordSample = false;
             }
         }
